@@ -4,3 +4,4 @@ dist
 .localdatabase
 src/config/config.json
 .DS_Store
+.vscode

@@ -6,6 +6,7 @@ export interface RequestUuid extends FastifyRequest {
   start?: any;
   user?: UserSession;
   accessToken?: any;
+  params: any;
 }
 
 export interface UserSession {

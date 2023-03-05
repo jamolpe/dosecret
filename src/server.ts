@@ -72,14 +72,7 @@ export class Server {
     this.app.use(errorMiddleware);
   }
   private routes(): void {
-    this.definePrivateRoutes();
     this.definePublicRoutes();
-  }
-
-  private definePrivateRoutes(): void {
-    this.app.register(autoload, {
-      dir: path.join(__dirname, 'routes/private')
-    });
   }
 
   private definePublicRoutes(): void {

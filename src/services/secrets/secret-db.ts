@@ -1,0 +1,18 @@
+import { Secret } from '../../core/models/secret';
+import { ISecretDB } from '../../core/secret/secret';
+import SecretDB from './secret-db-model';
+
+export class ProjectDatabase implements ISecretDB {
+  save(secret: Secret) {
+    const scrDB = new SecretDB(secret);
+    scrDB.expires = secret.expires;
+    return scrDB.save();
+  }
+  async getSecret(uuid: string): Promise<Secret | undefined> {
+    const scr = await SecretDB.find({ uuid }).lean();
+    return scr.pop();
+  }
+  async deleteSecret(uuid: string): Promise<void> {
+    return SecretDB.remove({ uuid }).lean();
+  }
+}
