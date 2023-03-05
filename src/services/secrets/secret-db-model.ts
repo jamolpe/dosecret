@@ -7,6 +7,7 @@ export interface ISecretDB extends mongoose.Document {
   expires: Date;
   maxUsages: number;
   uuid: string;
+  usages: number;
 }
 
 export const SecretDBSchema = new mongoose.Schema({
@@ -15,6 +16,7 @@ export const SecretDBSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   expires: { type: Date },
   maxUsages: { type: Number },
+  usages: { type: Number, default: 0 },
   uuid: { type: String, required: true }
 });
 

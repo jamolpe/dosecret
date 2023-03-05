@@ -2,17 +2,22 @@ import { Result } from '../../models/result';
 import { Secret } from '../models/secret';
 import { ERROR_CODES, manageDbCreateErrors } from './secret-error';
 import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 
 export interface ISecretDB {
   save(secret: Secret): Promise<Secret>;
   getSecret(uuid: string): Promise<Secret | undefined>;
   deleteSecret(uuid: string): Promise<void>;
+  updateSecret(id: string, secret: Secret): Promise<Secret>;
 }
 
 export class SecretCore {
   secretDb: ISecretDB;
+  algorithm: string;
+
   constructor(db: ISecretDB) {
     this.secretDb = db;
+    this.algorithm = 'aes-256-cbc';
   }
 
   validateSecret(secret: Secret) {
@@ -23,15 +28,46 @@ export class SecretCore {
     if (today > secret.date) {
       return ERROR_CODES.SECRET_DATE_ERROR;
     }
-    return;
   }
+
+  private secureSecret(secret: string): string {
+    const secretKey = process.env.SECRET_KEY;
+
+    const iv = crypto.randomBytes(16);
+
+    const cipher = crypto.createCipheriv(this.algorithm, secretKey, iv);
+
+    let ciphertext = cipher.update(secret, 'utf8', 'hex');
+    ciphertext += cipher.final('hex');
+    ciphertext += iv.toString('hex');
+    return ciphertext;
+  }
+
+  private decryptSecret(secured: string) {
+    const ivFromCiphertext = Buffer.from(secured.slice(-32), 'hex');
+    const ciphertextWithoutIv = secured.slice(0, -32);
+
+    const decipher = crypto.createDecipheriv(
+      this.algorithm,
+      process.env.SECRET_KEY,
+      ivFromCiphertext
+    );
+    let decrypted = decipher.update(ciphertextWithoutIv, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  }
+
   async generateSecret(secret: Secret): Promise<Result<string>> {
     try {
       const validation = this.validateSecret(secret);
       if (validation) {
         return { error: validation };
       }
-      const newSecret = { ...secret, uuid: uuidv4() };
+      const newSecret = {
+        ...secret,
+        uuid: uuidv4(),
+        secret: this.secureSecret(secret.secret)
+      };
       const result = await this.secretDb.save(newSecret);
       return { result: result.uuid };
     } catch (error) {
@@ -41,7 +77,15 @@ export class SecretCore {
   async getSecretByUuid(uuid: string): Promise<Result<Secret>> {
     try {
       const secret = await this.secretDb.getSecret(uuid);
-      return { result: secret };
+      const updatedSecret = await this.secretDb.updateSecret(secret.id, {
+        ...secret,
+        usages: secret.usages + 1
+      });
+      updatedSecret.id = undefined;
+      updatedSecret.secret = this.decryptSecret(secret.secret);
+      if (updatedSecret.usages >= updatedSecret.maxUsages)
+        await this.secretDb.deleteSecret(updatedSecret.uuid);
+      return { result: updatedSecret };
     } catch (error) {
       return { error: ERROR_CODES.NOT_FOUND };
     }

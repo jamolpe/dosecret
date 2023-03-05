@@ -9,10 +9,20 @@ export class ProjectDatabase implements ISecretDB {
     return scrDB.save();
   }
   async getSecret(uuid: string): Promise<Secret | undefined> {
-    const scr = await SecretDB.find({ uuid }).lean();
-    return scr.pop();
+    const scr = await SecretDB.findOne({ uuid }).lean();
+    return {
+      ...scr,
+      id: scr._id
+    };
   }
   async deleteSecret(uuid: string): Promise<void> {
     return SecretDB.remove({ uuid }).lean();
+  }
+
+  async updateSecret(id: string, secret: Secret): Promise<Secret> {
+    const newSecret = await SecretDB.findByIdAndUpdate(id, secret, {
+      new: true
+    }).lean();
+    return newSecret;
   }
 }

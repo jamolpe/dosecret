@@ -42,7 +42,8 @@ export = async function SecretRoutes(fastify: FastifyInstance) {
           .prop('date', S.not(S.array()))
           .prop('expires', S.not(S.array()))
           .prop('maxUsages', S.number())
-          .prop('uuid', S.string()),
+          .prop('uuid', S.string())
+          .prop('usages', S.number()),
         500: S.string(),
         422: S.object()
           .prop('message', S.string())
