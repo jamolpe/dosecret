@@ -57,7 +57,7 @@ export class SecretCore {
     return decrypted;
   }
 
-  async generateSecret(secret: Secret): Promise<Result<string>> {
+  async generateSecret(secret: Secret): Promise<Result<{ uuid: string }>> {
     try {
       const validation = this.validateSecret(secret);
       if (validation) {
@@ -69,7 +69,7 @@ export class SecretCore {
         secret: this.secureSecret(secret.secret)
       };
       const result = await this.secretDb.save(newSecret);
-      return { result: result.uuid };
+      return { result: { uuid: result.uuid } };
     } catch (error) {
       return { error: manageDbCreateErrors(error) };
     }

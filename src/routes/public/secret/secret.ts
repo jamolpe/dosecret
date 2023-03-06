@@ -1,6 +1,6 @@
 import S from 'fluent-json-schema';
 import { FastifyInstance } from 'fastify';
-import { SecretController } from '../../controllers/public/secret-controller';
+import { SecretController } from '../../../controllers/public/secret-controller';
 
 export = async function SecretRoutes(fastify: FastifyInstance) {
   const secretController = new SecretController();
@@ -18,7 +18,7 @@ export = async function SecretRoutes(fastify: FastifyInstance) {
         .prop('expires', S.string())
         .prop('maxUsages', S.number()),
       response: {
-        200: S.string(),
+        200: S.object().prop('uuid', S.string()),
         500: S.string(),
         422: S.object()
           .prop('message', S.string())

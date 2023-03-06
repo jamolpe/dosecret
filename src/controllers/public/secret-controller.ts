@@ -11,11 +11,11 @@ export class SecretController {
     const { secret, date, expires, maxUsages } = <Secret>req.body;
     const { result, error } = await this.secretCore.generateSecret({
       secret,
-      date: new Date(date),
-      expires: new Date(expires),
+      date: date,
+      expires: expires,
       maxUsages
     });
-    return manageResults<string>(res, result, error);
+    return manageResults<{ uuid: string }>(res, result, error);
   }
 
   async getSecret(req: RequestUuid, res: FastifyReply) {

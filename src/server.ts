@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
+dotenv.config();
 import path from 'path';
 import fastify from 'fastify';
 import cookie from '@fastify/cookie';
 import autoload from '@fastify/autoload';
 import type { FastifyCookieOptions } from '@fastify/cookie';
-dotenv.config();
 import cors from 'cors';
 import preLoggerMiddleware from './middlewares/pre-logger-mw';
 import requestUuid from './middlewares/uuid-mw';
