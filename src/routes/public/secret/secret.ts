@@ -16,9 +16,13 @@ export = async function SecretRoutes(fastify: FastifyInstance) {
         .prop('secret', S.string().required())
         .prop('date', S.string())
         .prop('expires', S.string())
-        .prop('maxUsages', S.number()),
+        .prop('maxUsages', S.number())
+        .prop('session', S.string()),
       response: {
-        200: S.object().prop('uuid', S.string()),
+        200: S.object()
+          .prop('uuid', S.string())
+          .prop('session', S.string())
+          .prop('admUuid', S.string()),
         500: S.string(),
         422: S.object()
           .prop('message', S.string())
@@ -43,7 +47,8 @@ export = async function SecretRoutes(fastify: FastifyInstance) {
           .prop('expires', S.not(S.array()))
           .prop('maxUsages', S.number())
           .prop('uuid', S.string())
-          .prop('usages', S.number()),
+          .prop('usages', S.number())
+          .prop('admUuid', S.string()),
         500: S.string(),
         422: S.object()
           .prop('message', S.string())

@@ -5,5 +5,6 @@ export interface Secret {
   expires: Date;
   maxUsages: number;
   uuid?: string;
+  admUuid?: string;
   usages?: number;
 }

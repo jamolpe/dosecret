@@ -7,6 +7,7 @@ import crypto from 'crypto';
 export interface ISecretDB {
   save(secret: Secret): Promise<Secret>;
   getSecret(uuid: string): Promise<Secret | undefined>;
+  getSecretByAdmin(admUuid: string): Promise<Secret | undefined>;
   deleteSecret(uuid: string): Promise<void>;
   updateSecret(id: string, secret: Secret): Promise<Secret>;
 }
@@ -57,7 +58,9 @@ export class SecretCore {
     return decrypted;
   }
 
-  async generateSecret(secret: Secret): Promise<Result<{ uuid: string }>> {
+  async generateSecret(
+    secret: Secret
+  ): Promise<Result<{ uuid: string; admUuid: string }>> {
     try {
       const validation = this.validateSecret(secret);
       if (validation) {
@@ -66,21 +69,27 @@ export class SecretCore {
       const newSecret = {
         ...secret,
         uuid: uuidv4(),
+        admUuid: uuidv4(),
         secret: this.secureSecret(secret.secret)
       };
       const result = await this.secretDb.save(newSecret);
-      return { result: { uuid: result.uuid } };
+      return { result: { uuid: result.uuid, admUuid: result.admUuid } };
     } catch (error) {
       return { error: manageDbCreateErrors(error) };
     }
   }
   async getSecretByUuid(uuid: string): Promise<Result<Secret>> {
     try {
-      const secret = await this.secretDb.getSecret(uuid);
-      const updatedSecret = await this.secretDb.updateSecret(secret.id, {
-        ...secret,
-        usages: secret.usages + 1
-      });
+      let secret = await this.secretDb.getSecretByAdmin(uuid);
+      let updatedSecret = { ...secret };
+      if (!secret) {
+        secret = await this.secretDb.getSecret(uuid);
+        updatedSecret = await this.secretDb.updateSecret(secret.id, {
+          ...secret,
+          usages: secret.usages + 1
+        });
+        updatedSecret.admUuid = undefined;
+      }
       updatedSecret.id = undefined;
       updatedSecret.secret = this.decryptSecret(secret.secret);
       if (updatedSecret.usages >= updatedSecret.maxUsages)

@@ -8,14 +8,20 @@ import { manageResults } from '../utils/manage-result';
 export class SecretController {
   secretCore = new SecretCore(new ProjectDatabase());
   async generateSecret(req: RequestUuid, res: FastifyReply) {
-    const { secret, date, expires, maxUsages } = <Secret>req.body;
+    const { secret, date, expires, maxUsages, session } = <
+      { session: string } & Secret
+    >req.body;
     const { result, error } = await this.secretCore.generateSecret({
       secret,
       date: date,
       expires: expires,
       maxUsages
     });
-    return manageResults<{ uuid: string }>(res, result, error);
+    return manageResults<{ uuid: string; session: string; admUuid: string }>(
+      res,
+      { ...result, session },
+      error
+    );
   }
 
   async getSecret(req: RequestUuid, res: FastifyReply) {

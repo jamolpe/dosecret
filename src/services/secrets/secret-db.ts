@@ -15,6 +15,14 @@ export class ProjectDatabase implements ISecretDB {
       id: scr._id
     };
   }
+
+  async getSecretByAdmin(admUuid: string): Promise<Secret | undefined> {
+    const scr = await SecretDB.findOne({ admUuid }).lean();
+    return {
+      ...scr,
+      id: scr._id
+    };
+  }
   async deleteSecret(uuid: string): Promise<void> {
     return SecretDB.remove({ uuid }).lean();
   }
