@@ -78,9 +78,19 @@ export class SecretCore {
       return { error: manageDbCreateErrors(error) };
     }
   }
+
+  private async getSecretAsAdmin(adminUuid: string) {
+    try {
+      const secret = await this.secretDb.getSecretByAdmin(adminUuid);
+      return secret;
+    } catch (error) {
+      return;
+    }
+  }
+
   async getSecretByUuid(uuid: string): Promise<Result<Secret>> {
     try {
-      let secret = await this.secretDb.getSecretByAdmin(uuid);
+      let secret = await this.getSecretAsAdmin(uuid);
       let updatedSecret = { ...secret };
       if (!secret) {
         secret = await this.secretDb.getSecret(uuid);
