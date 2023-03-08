@@ -1,6 +1,6 @@
 {
-  "name": "fastify-cognito-template",
-  "version": "0.0.1",
+  "name": "dosecret",
+  "version": "0.0.2",
   "description": "template project",
   "main": "src/server.ts",
   "scripts": {
@@ -18,32 +18,28 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jamolpe/fastify-cognito-template.git"
+    "url": "git+https://github.com/jamolpe/dosecret.git"
   },
   "author": "jamolpe@gmail.com",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jamolpe/fastify-cognito-template/issues"
+    "url": "https://github.com/jamolpe/dosecret/issues"
   },
-  "homepage": "https://github.com/jamolpe/fastify-cognito-template#readme",
+  "homepage": "https://github.com/jamolpe/dosecret#readme",
   "dependencies": {
     "@fastify/autoload": "^5.6.0",
     "@fastify/cookie": "^8.3.0",
     "@fastify/express": "^2.3.0",
     "@fastify/swagger": "^8.2.1",
     "@fastify/swagger-ui": "^1.3.0",
-    "amazon-cognito-identity-js": "^5.2.3",
-    "aws-sdk": "^2.1046.0",
     "axios": "^0.24.0",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dayjs": "^1.10.7",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "fastify": "^4.10.2",
     "fluent-json-schema": "^4.0.0",
-    "jsonwebtoken": "^8.5.1",
-    "jwk-to-pem": "^2.0.5",
-    "jwt-decode": "^3.1.2",
     "mongoose": "^6.1.4",
     "simple-node-logger": "^21.8.12",
     "ts-node": "^10.4.0",
@@ -53,7 +49,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
-    "@types/jsonwebtoken": "^8.5.6",
+    "@types/uuid": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
     "eslint": "^7.32.0",

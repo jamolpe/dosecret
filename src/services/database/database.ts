@@ -3,6 +3,7 @@ import { MONGODB_URI } from '../../models/constants';
 
 export class Database {
   connect() {
+    mongoose.set('strictQuery', false);
     const connection = mongoose.connection;
     connection.on('connected', () => {
       console.log('Mongo Connection Established');

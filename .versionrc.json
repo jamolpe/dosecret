@@ -10,8 +10,8 @@
     { "type": "perf", "hidden": true },
     { "type": "test", "hidden": true }
   ],
-  "commitUrlFormat": "https://github.com/jamolpe/fastify-cognito-template/commit/{{hash}}",
-  "compareUrlFormat": "https://github.com/jamolpe/fastify-cognito-template/compare/{{previousTag}}...{{currentTag}}",
+  "commitUrlFormat": "https://github.com/jamolpe/dosecret/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/jamolpe/dosecret/compare/{{previousTag}}...{{currentTag}}",
   "issuePrefixes": ["#"],
-  "issueUrlFormat": "https://github.com/jamolpe/fastify-cognito-template/issues/{{id}}"
+  "issueUrlFormat": "https://github.com/jamolpe/dosecret/issues/{{id}}"
 }

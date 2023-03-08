@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
+dotenv.config();
 import path from 'path';
 import fastify from 'fastify';
 import cookie from '@fastify/cookie';
 import autoload from '@fastify/autoload';
 import type { FastifyCookieOptions } from '@fastify/cookie';
-dotenv.config();
 import cors from 'cors';
 import preLoggerMiddleware from './middlewares/pre-logger-mw';
 import requestUuid from './middlewares/uuid-mw';
@@ -72,19 +72,13 @@ export class Server {
     this.app.use(errorMiddleware);
   }
   private routes(): void {
-    this.definePrivateRoutes();
     this.definePublicRoutes();
-  }
-
-  private definePrivateRoutes(): void {
-    this.app.register(autoload, {
-      dir: path.join(__dirname, 'routes/private')
-    });
   }
 
   private definePublicRoutes(): void {
     this.app.register(autoload, {
-      dir: path.join(__dirname, 'routes/public')
+      dir: path.join(__dirname, 'routes/public'),
+      options: { prefix: '/api' }
     });
   }
 }

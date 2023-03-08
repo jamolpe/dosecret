@@ -1,4 +1,4 @@
-# fastify-cognito-template
+# dosecret
 
 Template to work with cognito auth users
 
