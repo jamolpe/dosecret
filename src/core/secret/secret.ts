@@ -1,15 +1,15 @@
 import { Result } from '../../models/result';
-import { Secret } from '../models/secret';
+import { Secret, SecretOwner } from '../models/secret';
 import { ERROR_CODES, manageDbCreateErrors } from './secret-error';
 import { v4 as uuidv4 } from 'uuid';
 import crypto from 'crypto';
 
 export interface ISecretDB {
-  save(secret: Secret): Promise<Secret>;
-  getSecret(uuid: string): Promise<Secret | undefined>;
-  getSecretByAdmin(admUuid: string): Promise<Secret | undefined>;
+  save(secret: SecretOwner): Promise<SecretOwner>;
+  getSecret(uuid: string): Promise<SecretOwner | undefined>;
+  getSecretByAdmin(ownerUuid: string): Promise<SecretOwner | undefined>;
   deleteSecret(uuid: string): Promise<void>;
-  updateSecret(id: string, secret: Secret): Promise<Secret>;
+  updateSecret(id: string, secret: SecretOwner): Promise<SecretOwner>;
 }
 
 export class SecretCore {
@@ -60,54 +60,62 @@ export class SecretCore {
 
   async generateSecret(
     secret: Secret
-  ): Promise<Result<{ uuid: string; admUuid: string }>> {
+  ): Promise<Result<{ uuid: string; ownerUuid: string }>> {
     try {
       const validation = this.validateSecret(secret);
       if (validation) {
         return { error: validation };
       }
-      const newSecret = {
+      const newSecret: SecretOwner = {
         ...secret,
+        usages: 0,
         uuid: uuidv4(),
-        admUuid: uuidv4(),
+        ownerUuid: uuidv4(),
         secret: this.secureSecret(secret.secret)
       };
       const result = await this.secretDb.save(newSecret);
-      return { result: { uuid: result.uuid, admUuid: result.admUuid } };
+      return { result: { uuid: result.uuid, ownerUuid: newSecret.ownerUuid } };
     } catch (error) {
       return { error: manageDbCreateErrors(error) };
     }
   }
 
-  private async getSecretAsAdmin(adminUuid: string) {
+  private async getSecretAsOwner(adminUuid: string): Promise<SecretOwner> {
     try {
       const secret = await this.secretDb.getSecretByAdmin(adminUuid);
       return secret;
     } catch (error) {
-      return;
+      return null;
     }
   }
 
-  async getSecretByUuid(uuid: string): Promise<Result<Secret>> {
+  private async getSecretAsUser(uuid: string): Promise<Secret> {
     try {
-      let secret = await this.getSecretAsAdmin(uuid);
-      let updatedSecret = { ...secret };
-      if (!secret) {
-        secret = await this.secretDb.getSecret(uuid);
-        updatedSecret = await this.secretDb.updateSecret(secret.id, {
-          ...secret,
-          usages: secret.usages + 1
-        });
-        updatedSecret.admUuid = undefined;
-      }
-      updatedSecret.id = undefined;
-      updatedSecret.secret = this.decryptSecret(secret.secret);
+      const secret = await this.secretDb.getSecret(uuid);
+      const updatedSecret = await this.secretDb.updateSecret(secret.id, {
+        ...secret,
+        usages: secret.usages + 1
+      });
+      updatedSecret.ownerUuid = undefined;
+      updatedSecret.usages = undefined;
       if (updatedSecret.usages >= updatedSecret.maxUsages)
         await this.secretDb.deleteSecret(updatedSecret.uuid);
-      return { result: updatedSecret };
+      return updatedSecret;
     } catch (error) {
-      return { error: ERROR_CODES.NOT_FOUND };
+      return null;
     }
+  }
+
+  async getSecretByUuid(uuid: string): Promise<Result<Secret | SecretOwner>> {
+    let secret: Secret | SecretOwner | null = null;
+    secret = await this.getSecretAsOwner(uuid);
+    if (!secret) {
+      secret = await this.getSecretAsUser(uuid);
+    }
+    if (!secret) return { error: ERROR_CODES.NOT_FOUND };
+    secret.id = undefined;
+    secret.secret = this.decryptSecret(secret.secret);
+    return { result: secret };
   }
 
   async deleteSecretByUuid(uuid: string): Promise<Result<boolean>> {

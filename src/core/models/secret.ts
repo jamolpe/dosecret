@@ -5,6 +5,9 @@ export interface Secret {
   expires: Date;
   maxUsages: number;
   uuid?: string;
-  admUuid?: string;
-  usages?: number;
+}
+
+export interface SecretOwner extends Secret {
+  ownerUuid: string;
+  usages: number;
 }

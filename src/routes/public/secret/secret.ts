@@ -22,7 +22,7 @@ export = async function SecretRoutes(fastify: FastifyInstance) {
         200: S.object()
           .prop('uuid', S.string())
           .prop('session', S.string())
-          .prop('admUuid', S.string()),
+          .prop('ownerUuid', S.string()),
         500: S.string(),
         422: S.object()
           .prop('message', S.string())
@@ -48,7 +48,7 @@ export = async function SecretRoutes(fastify: FastifyInstance) {
           .prop('maxUsages', S.number())
           .prop('uuid', S.string())
           .prop('usages', S.number())
-          .prop('admUuid', S.string()),
+          .prop('ownerUuid', S.string()),
         500: S.string(),
         422: S.object()
           .prop('message', S.string())

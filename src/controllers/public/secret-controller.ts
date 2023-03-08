@@ -17,7 +17,7 @@ export class SecretController {
       expires: expires,
       maxUsages
     });
-    return manageResults<{ uuid: string; session: string; admUuid: string }>(
+    return manageResults<{ uuid: string; session: string; ownerUuid: string }>(
       res,
       { ...result, session },
       error
