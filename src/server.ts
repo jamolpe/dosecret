@@ -77,7 +77,8 @@ export class Server {
 
   private definePublicRoutes(): void {
     this.app.register(autoload, {
-      dir: path.join(__dirname, 'routes/public')
+      dir: path.join(__dirname, 'routes/public'),
+      options: { prefix: '/api' }
     });
   }
 }
